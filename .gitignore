@@ -1,0 +1,7 @@
+.idea
+venv_vsol_viewer
+*.c
+build
+__pycache__
+*.pyc
+*.pyd
