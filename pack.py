@@ -14,11 +14,11 @@ buildOptions = dict(
     excludes = [],
     includes = [],
     include_files=['c:/Python36-32/DLLs/tcl86t.dll',
-                   'c:/Python36-32/DLLs/tk86t.dll']
+                   'c:/Python36-32/DLLs/tk86t.dll',
                    #'C:\\Windows\\System32\\ucrtbase.dll']
                    #'c:/Python37-32/DLLs/sqlite3.dll']
-                   #os.path.join(os.getcwd(), 'smoking.ico'),
-                   #os.path.join(os.getcwd(), 'Smoking.gif')]
+                   os.path.join(os.getcwd(), 'logo.ico'),
+                   os.path.join(os.getcwd(), 'logo.gif')]
 )
 
 import sys
