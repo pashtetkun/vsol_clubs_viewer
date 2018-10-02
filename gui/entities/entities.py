@@ -12,7 +12,7 @@ class Country:
     def __init__(self, id, name, continent_id):
         self.id = id
         self.name = name
-        self.continent_id
+        self.continent_id = continent_id
 
 
 class Club:
