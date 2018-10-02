@@ -5,6 +5,7 @@ import csv
 import os
 
 
+
 class VsolExporter:
     def __init__(self):
         pass
