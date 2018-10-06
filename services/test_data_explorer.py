@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 from gui.entities import entities
 
-class TestDataExplorer:
+
+class DataExplorer:
     def __init__(self):
         pass
 

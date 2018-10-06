@@ -5,7 +5,8 @@ from tkinter import ttk
 import tkinter
 import tkinter.messagebox
 import os
-from test_data import test_data_explorer as tde
+#from services import test_data_explorer as de
+from services import data_explorer as de
 from services import vsol_exporter, db_importer
 
 
@@ -24,8 +25,8 @@ class MainWindow:
         self.root.resizable(width=False, height=False)
         self.root.iconbitmap(icon_path)
 
-        self.tde = tde.TestDataExplorer()
-        self.continents = self.tde.get_all_continents()
+        self.de = de.DataExplorer()
+        self.continents = self.de.get_all_continents()
         self.clubs = []
 
         self.menu = tkinter.Menu(self.root)
@@ -96,7 +97,7 @@ class MainWindow:
         if not self.continents:
             return
         self.continents_combo.current(idx)
-        self.countries = self.tde.get_countries(self.continents[idx].id)
+        self.countries = self.de.get_countries(self.continents[idx].id)
         self.refresh_countries_grid()
 
     def choose_continent_handler(self, event):
@@ -114,7 +115,7 @@ class MainWindow:
 
     def choose_country_handler(self, event):
         country_id = int(event.widget.selection()[0])
-        self.clubs = self.tde.get_clubs(country_id)
+        self.clubs = self.de.get_clubs(country_id)
         self.refresh_clubs_grids()
 
     def refresh_clubs_grids(self):
