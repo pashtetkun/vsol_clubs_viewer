@@ -4,4 +4,5 @@ cx-Freeze==5.1.1
 Cython==0.28.5
 idna==2.7
 lxml==4.2.5
+peewee==3.7.1
 urllib3==1.23

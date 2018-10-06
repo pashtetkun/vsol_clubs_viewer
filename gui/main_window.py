@@ -3,9 +3,10 @@
 
 from tkinter import ttk
 import tkinter
+import tkinter.messagebox
 import os
 from test_data import test_data_explorer as tde
-from services import vsol_exporter
+from services import vsol_exporter, db_importer
 
 
 class MainWindow:
@@ -29,22 +30,19 @@ class MainWindow:
 
         self.menu = tkinter.Menu(self.root)
         self.root.config(menu=self.menu)
-        #self.menu.add_command(label="Сервис")
         self.menu.add_command(label="Обновить")
         self.menu.add_command(label="Анализ")
 
         self.service_menu = tkinter.Menu(self.menu, tearoff=0)
         self.service_menu.add_command(label="Экспорт стран: VSOL --> csv", command=self.countries_to_csv)
+        self.service_menu.add_command(label="Импорт стран: csv --> db", command=self.countries_to_db)
 
         self.menu.add_cascade(label="Сервис", menu=self.service_menu)
-
 
         self.draw_left_frame(logo_path)
         self.draw_right_frame()
 
         self.set_continents_combo(0)
-
-        #self.init_data()
         
         self.root.mainloop()
         
@@ -138,6 +136,11 @@ class MainWindow:
         csv = exporter.countriesToCSV()
         #for windows only
         os.startfile(csv, 'open')
+
+    def countries_to_db(self):
+        importer = db_importer.DbImporter()
+        importer.import_countries('countries.csv')
+        tkinter.messagebox.showinfo("Сообщение", "Страны импортированы успешно!")
 
 
 if __name__ == "__main__":
