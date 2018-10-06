@@ -19,6 +19,7 @@ class VsolExporter:
             writer = csv.writer(output, lineterminator='\n', delimiter=';')
             for country in countries:
                 writer.writerow([country['name'], country['vsol_id']])
+        return csv_file
 
 
 if __name__ == "__main__":

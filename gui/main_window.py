@@ -5,6 +5,7 @@ from tkinter import ttk
 import tkinter
 import os
 from test_data import test_data_explorer as tde
+from services import vsol_exporter
 
 
 class MainWindow:
@@ -28,8 +29,15 @@ class MainWindow:
 
         self.menu = tkinter.Menu(self.root)
         self.root.config(menu=self.menu)
+        #self.menu.add_command(label="Сервис")
         self.menu.add_command(label="Обновить")
         self.menu.add_command(label="Анализ")
+
+        self.service_menu = tkinter.Menu(self.menu, tearoff=0)
+        self.service_menu.add_command(label="Экспорт стран: VSOL --> csv", command=self.countries_to_csv)
+
+        self.menu.add_cascade(label="Сервис", menu=self.service_menu)
+
 
         self.draw_left_frame(logo_path)
         self.draw_right_frame()
@@ -124,6 +132,12 @@ class MainWindow:
                 self.clubs_grid.insert('', 'end', iid=club.id, values=(club.name,))
             else:
                 self.hidden_clubs_grid.insert('', 'end', iid=club.id, values=(club.name,))
+
+    def countries_to_csv(self):
+        exporter = vsol_exporter.VsolExporter()
+        csv = exporter.countriesToCSV()
+        #for windows only
+        os.startfile(csv, 'open')
 
 
 if __name__ == "__main__":

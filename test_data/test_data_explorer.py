@@ -8,7 +8,10 @@ class TestDataExplorer:
 
     def get_all_continents(self):
         return [entities.Continent(id=1, name='UEFA - Европа'),
-                entities.Continent(id=2, name='AFC - Азия')]
+                entities.Continent(id=2, name='AFC - Азия'),
+                entities.Continent(id=3, name='CAF - Африка'),
+                entities.Continent(id=4, name='CONCACAF - Сев. Америка'),
+                entities.Continent(id=5, name='CONMEBOL - Южн. Америка')]
 
     def get_countries(self, continent_id):
         if continent_id == 1:
