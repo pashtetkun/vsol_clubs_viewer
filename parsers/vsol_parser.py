@@ -119,10 +119,49 @@ class VsolParser:
 
         return clubs
 
+    def get_hidden_clubs(self):
+        clubs = {}
+        page = html.parse("%s" % (HIDDEN_TEAMS_URL, ))
+        select = page.getroot().find_class('form2 tct')[0]
+        numbers = len(select.getchildren())
+        countCl = 0
+        ids = []
+        for num in range(1, numbers+1):
+            page = html.parse("%s?page=%d" % (HIDDEN_TEAMS_URL, num))
+            table = page.getroot().find_class('tbl')[0]
+            rows = table.getchildren()
+            for count, row in enumerate(rows):
+                if ((count == 0) or (count == len(rows) - 1)):
+                    continue
+                name = ""
+                country = ""
+                vsol_id = 0
+                for i, col in enumerate(row):
+                    if (i > 1):
+                        continue
+                    if (i == 0):
+                        a = col.find_class('mnu')[0]
+                        #name = a.text_content()
+                        href = a.attrib['href']
+                        vsol_id = int(href.split('=')[1])
+                    if (i == 1):
+                        country = col.attrib['title']
+
+                #club = {'name':name, 'vsol_id':vsol_id, 'isHidden': True}
+                countCl+=1
+                if (country in clubs):
+                    clubs.get(country).append(vsol_id)
+                else:
+                    clubs[country] = [vsol_id]
+
+        return clubs
+
 
 if __name__ == "__main__":
     vsol_parser = VsolParser()
     #print(vsol_parser.get_countries())
     #vsol_parser.get_clubs(4)
     #print(vsol_parser.get_club(12135))
+    vsol_parser.get_hidden_clubs()
+
     print('Done')
