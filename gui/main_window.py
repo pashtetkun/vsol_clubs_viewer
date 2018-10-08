@@ -29,9 +29,12 @@ class MainWindow:
         self.continents = self.de.get_all_continents()
         self.clubs = []
 
+        self.exporter = vsol_exporter.VsolExporter()
+        self.importer = db_importer.DbImporter()
+
         self.menu = tkinter.Menu(self.root)
         self.root.config(menu=self.menu)
-        self.menu.add_command(label="Обновить")
+        self.menu.add_command(label="Обновить", command=self.clubs_update)
         self.menu.add_command(label="Анализ")
 
         self.service_menu = tkinter.Menu(self.menu, tearoff=0)
@@ -133,15 +136,19 @@ class MainWindow:
                 self.hidden_clubs_grid.insert('', 'end', iid=club.id, values=(club.name,))
 
     def countries_to_csv(self):
-        exporter = vsol_exporter.VsolExporter()
-        csv = exporter.countriesToCSV()
+        csv = self.exporter.countries_to_csv()
         #for windows only
         os.startfile(csv, 'open')
 
     def countries_to_db(self):
-        importer = db_importer.DbImporter()
-        importer.import_countries('countries.csv')
+        self.importer.import_countries('countries.csv')
         tkinter.messagebox.showinfo("Сообщение", "Страны импортированы успешно!")
+
+    def clubs_update(self):
+        answer = tkinter.messagebox.askyesno(title="Вопрос", message="Обновить информацию о клубах?")
+        if answer:
+            self.exporter.clubs_to_db()
+            tkinter.messagebox.showinfo("Сообщение", "Информация о клубах обновлена успешно!")
 
 
 if __name__ == "__main__":

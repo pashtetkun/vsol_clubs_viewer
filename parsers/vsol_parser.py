@@ -113,7 +113,8 @@ class VsolParser:
 
         for id in ids:
             club = self.get_club(id)
-            club['isHidden'] = False
+            club['is_hidden'] = False
+            club['country_vsol_id'] = country_id
             clubs.append(club)
             print(id)
 
@@ -147,7 +148,7 @@ class VsolParser:
                     if (i == 1):
                         country = col.attrib['title']
 
-                #club = {'name':name, 'vsol_id':vsol_id, 'isHidden': True}
+                #club = {'name':name, 'vsol_id':vsol_id, 'is_hidden': True}
                 countCl+=1
                 if (country in clubs):
                     clubs.get(country).append(vsol_id)
