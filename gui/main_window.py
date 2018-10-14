@@ -7,7 +7,7 @@ import tkinter.messagebox
 import os
 #from services import test_data_explorer as de
 from services import data_explorer as de
-from services import vsol_exporter, db_importer
+from services import vsol_exporter
 
 
 class MainWindow:
@@ -30,7 +30,6 @@ class MainWindow:
         self.clubs = []
 
         self.exporter = vsol_exporter.VsolExporter()
-        self.importer = db_importer.DbImporter()
 
         self.menu = tkinter.Menu(self.root)
         self.root.config(menu=self.menu)
@@ -141,13 +140,17 @@ class MainWindow:
         os.startfile(csv, 'open')
 
     def countries_to_db(self):
-        self.importer.import_countries('countries.csv')
+        self.de.import_countries('countries.csv')
         tkinter.messagebox.showinfo("Сообщение", "Страны импортированы успешно!")
 
     def clubs_update(self):
         answer = tkinter.messagebox.askyesno(title="Вопрос", message="Обновить информацию о клубах?")
         if answer:
-            self.exporter.clubs_to_db()
+            countries = self.de.get_all_countries()
+            clubs = self.exporter.get_clubs(countries)
+            for club in clubs:
+                self.de.save_club(club["name"], club["vsol_id"], club["country_vsol_id"], club["stadium"],
+                club["is_hidden"])
             tkinter.messagebox.showinfo("Сообщение", "Информация о клубах обновлена успешно!")
 
 

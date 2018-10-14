@@ -78,6 +78,7 @@ class VsolParser:
         return club
 
     def get_clubs(self, country_id):
+        print('start getting clubs for country = %d' % country_id)
         clubs = []
         page = html.parse("%s?num=%d" % (COUNTRY_URL, country_id))
         table = None
@@ -91,7 +92,12 @@ class VsolParser:
                 table = tbl
                 break;
         '''
-        table = tables[0]
+        filter_tables = []
+        for tbl in tables:
+            if tbl.attrib['width'] == '100%':
+                filter_tables.append(tbl)
+        table = filter_tables[-1]
+        #c = table.attrib['align']
 
         ids = []
         rows = table.getchildren()
@@ -112,12 +118,14 @@ class VsolParser:
             ids.append(vsol_id)
 
         for id in ids:
+            print('start getting club = %d' % id)
             club = self.get_club(id)
             club['is_hidden'] = False
             club['country_vsol_id'] = country_id
             clubs.append(club)
-            print(id)
+            print('end getting club = %d' % id)
 
+        print('end getting clubs for country = %d' % country_id)
         return clubs
 
     def get_hidden_clubs(self):
@@ -161,8 +169,10 @@ class VsolParser:
 if __name__ == "__main__":
     vsol_parser = VsolParser()
     #print(vsol_parser.get_countries())
-    #vsol_parser.get_clubs(4)
+    vsol_parser.get_clubs(4)
+    vsol_parser.get_clubs(6)
+    #vsol_parser.get_clubs(214)
     #print(vsol_parser.get_club(12135))
-    vsol_parser.get_hidden_clubs()
+    #vsol_parser.get_hidden_clubs()
 
     print('Done')
