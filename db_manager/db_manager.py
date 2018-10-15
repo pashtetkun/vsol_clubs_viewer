@@ -39,6 +39,8 @@ class DBManager():
             Country.create(name=name, vsol_id=vsol_id, continent_id=continent_id)
 
     def save_club(self, name, vsol_id, country_vsol_id, stadium, hidden):
-        club = Club.select().where(Club.vsol_id == vsol_id)
+        club = Club.get_or_none(Club.vsol_id == vsol_id)
         if not club:
-            Club.create(name=name, vsol_id=vsol_id, country_vsol_id=country_vsol_id, stadium=stadium, hidden=hidden)
+            Club.create(name=name, vsol_id = vsol_id, country_vsol_id = country_vsol_id, stadium = stadium,
+                                hidden = hidden)
+

@@ -24,14 +24,31 @@ class ThreadedClient(threading.Thread):
             self.queue.put({'done': False, 'message': "Получение списка стран завершено"})
             #clubs = self.exporter.get_clubs(countries)
             all_clubs = []
+
             for idx, country in enumerate(countries):
                 self.queue.put({'done': False, 'message': "Обрабатывается страна %d из %d" % (idx + 1, len(countries))})
                 clubs = self.parser.get_clubs(country.vsol_id)
                 all_clubs.extend(clubs)
 
-            for club in all_clubs:
-                self.de.save_club(club["name"], club["vsol_id"], club["country_vsol_id"], club["stadium"],
-                                  club["is_hidden"])
+            self.queue.put({'done': False, 'message': "Обрабатываются скрытые клубы"})
+            hidden_clubs_dict = self.parser.get_hidden_clubs()
+            count = 0
+            for key, value in hidden_clubs_dict.items():
+                country = next((x for x in countries if x.name == key), None)
+                if country:
+                    for id in value:
+                        club = self.parser.get_club(id)
+                        club['is_hidden'] = True
+                        club['country_vsol_id'] = country.vsol_id
+                        all_clubs.append(club)
+                        count += 1
+                        self.queue.put({'done': False, 'message': "Обработано скрытых клубов %d" % count})
+                break
+
+            #for club in all_clubs:
+                #self.de.save_club(club["name"], club["vsol_id"], club["country_vsol_id"], club["stadium"],
+                                  #club["is_hidden"])
+            self.de.update_clubs(all_clubs)
             self.queue.put({'done': True, 'message': ""})
         else:
             self.queue.put({'done': False, 'message': "Ля-ля-ля"})
@@ -69,12 +86,13 @@ class UpdateClubsWindow(tk.Toplevel):
         self.is_test = is_test
         self.de = data_explorer
         self.parser = vsol_parser
-        self.queue = queue.LifoQueue()
+        self.queue = queue.Queue(1)
         self.thread = None
         self.start()
 
     def close_window(self):
         if self.thread:
+            self.thread.join()
             pass
         self.destroy()
 
@@ -84,15 +102,17 @@ class UpdateClubsWindow(tk.Toplevel):
         self.progressbar.start()
         self.thread = ThreadedClient(self.queue, self.de, self.parser, self.is_test)
         self.thread.start()
-        self.master.after(200, self.listen_queue)
+        self.master.after(1000, self.listen_queue)
 
     def listen_queue(self):
         try:
-            resp = self.queue.get(0)
+            resp = self.queue.get()
             self.process_message(resp)
-            self.master.after(200, self.listen_queue)
+            self.queue.task_done()
+            self.queue.queue.clear()
+            self.master.after(1000, self.listen_queue)
         except queue.Empty:
-            self.master.after(200, self.listen_queue)
+            self.master.after(1000, self.listen_queue)
 
     def process_message(self, resp):
         if resp['done']:
@@ -100,6 +120,8 @@ class UpdateClubsWindow(tk.Toplevel):
             self.progressbar.grid_remove()
             self.var_message.set(resp['message'])
             #self.label_message.grid()
+            self.thread.join()
+            self.destroy()
         else:
             self.var_message.set(resp['message'])
 
@@ -113,5 +135,5 @@ if __name__ == "__main__":
     root.geometry('%dx%d+%d+%d' % (width, height, (ws - width) // 2, (hs - height) // 2))
     explorer = data_explorer.DataExplorer()
     parser = vsol_parser.VsolParser()
-    update_clubs_window = UpdateClubsWindow(800, 160, explorer, parser, True)
+    update_clubs_window = UpdateClubsWindow(800, 160, explorer, parser, False)
     root.mainloop()

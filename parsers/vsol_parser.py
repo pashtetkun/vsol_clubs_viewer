@@ -47,6 +47,7 @@ class VsolParser:
         page = html.parse("%s?num=%d" % (CLUB_URL, vsol_id))
         table = page.getroot().xpath("//table[@class='wst nil']//table[@class='wst nil']")[0]
         div_name = table.xpath("//div[@class='tmhd']")[0]
+        name = ''
         if (len(div_name.getchildren()) == 0):
             name = div_name.text_content()
         else:
@@ -54,7 +55,7 @@ class VsolParser:
                 name = div_name.xpath("//span[@id='team_name']")[0].text_content()
             else:
                 name = div_name.text_content()
-
+        name = name.replace('\n', '').replace('\t', '')
         parent = div_name.getparent()
         stadiumText = parent.getchildren()[-3].text_content()
         # print(vsol_id, stadiumText)

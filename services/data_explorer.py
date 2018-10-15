@@ -31,7 +31,9 @@ class DataExplorer():
         return []
 
     def update_clubs(self, clubs):
-        pass
+        for club in clubs:
+            self.dbm.save_club(club["name"], club["vsol_id"], club["country_vsol_id"], club["stadium"],
+                              club["is_hidden"])
 
     def import_countries(self, path):
         with open(os.path.join(os.getcwd(), path), 'r', encoding='utf-8') as csvfile:
