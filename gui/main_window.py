@@ -8,6 +8,8 @@ import os
 #from services import test_data_explorer as de
 from services import data_explorer as de
 from services import vsol_exporter
+from parsers import vsol_parser
+from gui import update_clubs_window
 
 
 class MainWindow:
@@ -30,6 +32,7 @@ class MainWindow:
         self.clubs = []
 
         self.exporter = vsol_exporter.VsolExporter()
+        self.parser = vsol_parser.VsolParser()
 
         self.menu = tkinter.Menu(self.root)
         self.root.config(menu=self.menu)
@@ -146,12 +149,13 @@ class MainWindow:
     def clubs_update(self):
         answer = tkinter.messagebox.askyesno(title="Вопрос", message="Обновить информацию о клубах?")
         if answer:
-            countries = self.de.get_all_countries()
-            clubs = self.exporter.get_clubs(countries)
-            for club in clubs:
-                self.de.save_club(club["name"], club["vsol_id"], club["country_vsol_id"], club["stadium"],
-                club["is_hidden"])
-            tkinter.messagebox.showinfo("Сообщение", "Информация о клубах обновлена успешно!")
+            #countries = self.de.get_all_countries()
+            #clubs = self.exporter.get_clubs(countries)
+            #for club in clubs:
+                #self.de.save_club(club["name"], club["vsol_id"], club["country_vsol_id"], club["stadium"],
+                #club["is_hidden"])
+            #tkinter.messagebox.showinfo("Сообщение", "Информация о клубах обновлена успешно!")
+            update_clubs_window.UpdateClubsWindow(800, 160, self.de, self.parser, False)
 
 
 if __name__ == "__main__":

@@ -162,6 +162,7 @@ class VsolParser:
                     clubs.get(country).append(vsol_id)
                 else:
                     clubs[country] = [vsol_id]
+                print('get hidden club with vsol_id=%d' % vsol_id)
 
         return clubs
 
@@ -169,10 +170,10 @@ class VsolParser:
 if __name__ == "__main__":
     vsol_parser = VsolParser()
     #print(vsol_parser.get_countries())
-    vsol_parser.get_clubs(4)
-    vsol_parser.get_clubs(6)
+    #vsol_parser.get_clubs(4)
+    #vsol_parser.get_clubs(6)
     #vsol_parser.get_clubs(214)
     #print(vsol_parser.get_club(12135))
-    #vsol_parser.get_hidden_clubs()
+    vsol_parser.get_hidden_clubs()
 
     print('Done')
