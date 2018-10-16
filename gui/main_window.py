@@ -115,12 +115,12 @@ class MainWindow:
         if not self.countries:
             return
         for country in self.countries:
-            self.countries_listbox.insert('','end', iid=country.id, values=(country.name,))
+            self.countries_listbox.insert('','end', iid=country.vsol_id, values=(country.name,))
         self.countries_listbox.selection_add(self.countries[0].id)
 
     def choose_country_handler(self, event):
-        country_id = int(event.widget.selection()[0])
-        self.clubs = self.de.get_clubs(country_id)
+        country_vsol_id = int(event.widget.selection()[0])
+        self.clubs = self.de.get_clubs(country_vsol_id)
         self.refresh_clubs_grids()
 
     def refresh_clubs_grids(self):

@@ -27,8 +27,10 @@ class DataExplorer():
     def get_all_countries(self):
         return db_manager.Country.select().order_by(db_manager.Country.name)
 
-    def get_clubs(self, country_id):
-        return []
+    def get_clubs(self, country_vsol_id):
+        return db_manager.Club.select()\
+                              .order_by(db_manager.Club.name)\
+                              .where(db_manager.Club.country_vsol_id == country_vsol_id)
 
     def update_clubs(self, clubs):
         for club in clubs:

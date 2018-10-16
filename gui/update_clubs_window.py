@@ -24,12 +24,10 @@ class ThreadedClient(threading.Thread):
             self.queue.put({'done': False, 'message': "Получение списка стран завершено"})
             #clubs = self.exporter.get_clubs(countries)
             all_clubs = []
-
             for idx, country in enumerate(countries):
                 self.queue.put({'done': False, 'message': "Обрабатывается страна %d из %d" % (idx + 1, len(countries))})
                 clubs = self.parser.get_clubs(country.vsol_id)
                 all_clubs.extend(clubs)
-
             self.queue.put({'done': False, 'message': "Обрабатываются скрытые клубы"})
             hidden_clubs_dict = self.parser.get_hidden_clubs()
             count = 0
@@ -43,11 +41,7 @@ class ThreadedClient(threading.Thread):
                         all_clubs.append(club)
                         count += 1
                         self.queue.put({'done': False, 'message': "Обработано скрытых клубов %d" % count})
-                break
 
-            #for club in all_clubs:
-                #self.de.save_club(club["name"], club["vsol_id"], club["country_vsol_id"], club["stadium"],
-                                  #club["is_hidden"])
             self.de.update_clubs(all_clubs)
             self.queue.put({'done': True, 'message': ""})
         else:
