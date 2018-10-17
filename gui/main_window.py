@@ -45,6 +45,8 @@ class MainWindow:
 
         self.menu.add_cascade(label="Сервис", menu=self.service_menu)
 
+        self.tab_panel = None
+
         self.draw_left_frame(logo_path)
         self.draw_right_frame()
 
@@ -131,11 +133,19 @@ class MainWindow:
         print(self.clubs)
         if not self.clubs:
             return
+
+        actived = 0
+        hiddened = 0
         for club in self.clubs:
             if not club.hidden:
                 self.clubs_grid.insert('', 'end', iid=club.id, values=(club.name,))
+                actived+=1
             else:
                 self.hidden_clubs_grid.insert('', 'end', iid=club.id, values=(club.name,))
+                hiddened+=1
+
+        self.tab_panel.tab(0, text="Активные (%d)" % actived)
+        self.tab_panel.tab(1, text="Скрытые (%d)" % hiddened)
 
     def countries_to_csv(self):
         csv = self.exporter.countries_to_csv()
