@@ -135,23 +135,21 @@ class MainWindow:
         self.refresh_clubs_grids()
 
     def refresh_clubs_grids(self):
+        actived = 0
+        hiddened = 0
         for row in self.clubs_grid.get_children():
             self.clubs_grid.delete(row)
         for row in self.hidden_clubs_grid.get_children():
             self.hidden_clubs_grid.delete(row)
         print(self.clubs)
-        if not self.clubs:
-            return
-
-        actived = 0
-        hiddened = 0
-        for club in self.clubs:
-            if not club.hidden:
-                self.clubs_grid.insert('', 'end', iid=club.id, values=(club.name,))
-                actived+=1
-            else:
-                self.hidden_clubs_grid.insert('', 'end', iid=club.id, values=(club.name,))
-                hiddened+=1
+        if self.clubs:
+            for club in self.clubs:
+                if not club.hidden:
+                    self.clubs_grid.insert('', 'end', iid=club.id, values=(club.name,))
+                    actived+=1
+                else:
+                    self.hidden_clubs_grid.insert('', 'end', iid=club.id, values=(club.name,))
+                    hiddened+=1
 
         self.tab_panel.tab(0, text="Активные (%d)" % actived)
         self.tab_panel.tab(1, text="Скрытые (%d)" % hiddened)
