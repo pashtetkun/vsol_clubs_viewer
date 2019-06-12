@@ -46,7 +46,15 @@ class VsolParser:
 
     def get_club(self, vsol_id):
         page = html.parse(urlopen("%s?num=%d" % (CLUB_URL, vsol_id)))
-        table = page.getroot().xpath("//table[@class='wst nil']//table[@class='wst nil']")[0]
+        tables = page.getroot().xpath("//table[@class='wst nil']//table[@class='wst nil']")
+        if not tables:
+            club = {
+                'name': 'Не существует',
+                'stadium': '',
+                'vsol_id': vsol_id
+            }
+            return club
+        table = tables[0]
         div_name = table.xpath("//div[@class='tmhd']")[0]
         name = ''
         if (len(div_name.getchildren()) == 0):
@@ -176,6 +184,7 @@ if __name__ == "__main__":
     #vsol_parser.get_clubs(6)
     #vsol_parser.get_clubs(214)
     #print(vsol_parser.get_club(12135))
-    vsol_parser.get_hidden_clubs()
+    #vsol_parser.get_hidden_clubs()
+    vsol_parser.get_club(23495)
 
     print('Done')
