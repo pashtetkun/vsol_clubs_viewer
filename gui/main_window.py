@@ -30,13 +30,21 @@ class MainWindow:
         self.de = de.DataExplorer()
         self.continents = self.de.get_all_continents()
         self.clubs = []
+        self.selected_continent_id = None
+        self.selected_country_id = None
 
         self.exporter = vsol_exporter.VsolExporter()
         self.parser = vsol_parser.VsolParser()
 
         self.menu = tkinter.Menu(self.root)
         self.root.config(menu=self.menu)
-        self.menu.add_command(label="Обновить", command=self.clubs_update)
+
+        self.update_menu = tkinter.Menu(self.menu, tearoff=0)
+        self.update_menu.add_command(label="Все", command=self.update_all)
+        self.update_menu.add_command(label="Только скрытые", command=self.update_hiddens)
+        self.update_menu.add_command(label="Выбранную страну", command=self.update_selected_country)
+        self.menu.add_cascade(label="Обновить клубы", menu=self.update_menu)
+        #self.menu.add_command(label="Обновить клубы", command=self.clubs_update)
         self.menu.add_command(label="Анализ")
 
         self.service_menu = tkinter.Menu(self.menu, tearoff=0)
@@ -122,6 +130,7 @@ class MainWindow:
 
     def choose_country_handler(self, event):
         country_vsol_id = int(event.widget.selection()[0])
+        self.selected_country_id = country_vsol_id
         self.clubs = self.de.get_clubs(country_vsol_id)
         self.refresh_clubs_grids()
 
@@ -156,7 +165,7 @@ class MainWindow:
         self.de.import_countries('countries.csv')
         tkinter.messagebox.showinfo("Сообщение", "Страны импортированы успешно!")
 
-    def clubs_update(self):
+    def update_all(self):
         answer = tkinter.messagebox.askyesno(title="Вопрос", message="Обновить информацию о клубах?")
         if answer:
             #countries = self.de.get_all_countries()
@@ -165,7 +174,23 @@ class MainWindow:
                 #self.de.save_club(club["name"], club["vsol_id"], club["country_vsol_id"], club["stadium"],
                 #club["is_hidden"])
             #tkinter.messagebox.showinfo("Сообщение", "Информация о клубах обновлена успешно!")
-            update_clubs_window.UpdateClubsWindow(800, 160, self.de, self.parser, False)
+            upWindow = update_clubs_window.UpdateClubsWindow(800, 160, self.de, self.parser, False)
+            upWindow.update_all()
+
+    def update_hiddens(self):
+        answer = tkinter.messagebox.askyesno(title="Вопрос", message="Обновить информацию о скрытых клубах?")
+        if answer:
+            upWindow = update_clubs_window.UpdateClubsWindow(800, 160, self.de, self.parser, False)
+            upWindow.update_hiddens()
+
+
+    def update_selected_country(self):
+        if not self.selected_country_id:
+            tkinter.messagebox.showinfo("Сообщение", "Страна не выбрана")
+        answer = tkinter.messagebox.askyesno(title="Вопрос", message="Обновить клубы в выбранной стране?")
+        if answer:
+            upWindow = update_clubs_window.UpdateClubsWindow(800, 160, self.de, self.parser, False)
+            upWindow.update_selected_country(self.selected_country_id)
 
 
 if __name__ == "__main__":

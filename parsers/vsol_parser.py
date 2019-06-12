@@ -146,7 +146,7 @@ class VsolParser:
         countCl = 0
         ids = []
         for num in range(1, numbers+1):
-            page = html.parse("%s?page=%d" % (HIDDEN_TEAMS_URL, num))
+            page = html.parse(urlopen("%s?page=%d&sort=1" % (HIDDEN_TEAMS_URL, num)))
             table = page.getroot().find_class('tbl')[0]
             rows = table.getchildren()
             for count, row in enumerate(rows):
@@ -185,6 +185,7 @@ if __name__ == "__main__":
     #vsol_parser.get_clubs(214)
     #print(vsol_parser.get_club(12135))
     #vsol_parser.get_hidden_clubs()
+    #vsol_parser.get_club(23495)
     vsol_parser.get_club(23495)
 
     print('Done')
