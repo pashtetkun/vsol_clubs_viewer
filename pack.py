@@ -4,8 +4,8 @@
 import os
 from cx_Freeze import setup, Executable
 
-os.environ['TCL_LIBRARY'] = 'c:/Python36-32/tcl/tcl8.6'
-os.environ['TK_LIBRARY'] = 'c:/Python36-32/tcl/tk8.6'
+os.environ['TCL_LIBRARY'] = 'c:/Python37-32/tcl/tcl8.6'
+os.environ['TK_LIBRARY'] = 'c:/Python37-32/tcl/tk8.6'
 
 # Dependencies are automatically detected, but it might need
 # fine tuning.
@@ -13,10 +13,10 @@ buildOptions = dict(
     packages = ["tkinter", "peewee"],
     excludes = [],
     includes = [],
-    include_files=['c:/Python36-32/DLLs/tcl86t.dll',
-                   'c:/Python36-32/DLLs/tk86t.dll',
+    include_files=['c:/Python37-32/DLLs/tcl86t.dll',
+                   'c:/Python37-32/DLLs/tk86t.dll',
                    #'C:\\Windows\\System32\\ucrtbase.dll']
-                   'c:/Python36-32/DLLs/sqlite3.dll',
+                   'c:/Python37-32/DLLs/sqlite3.dll',
                    os.path.join(os.getcwd(), 'logo.ico'),
                    os.path.join(os.getcwd(), 'logo.gif')]
 )

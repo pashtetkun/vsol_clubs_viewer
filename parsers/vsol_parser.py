@@ -1,13 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import lxml.html as html
+from urllib.request import urlopen
 import re
 
 
-COUNTRIES_URL = 'http://virtualsoccer.ru/teams.php'
-COUNTRY_URL = 'http://virtualsoccer.ru/teams_cntr.php'
-CLUB_URL = 'http://virtualsoccer.ru/roster.php'
-HIDDEN_TEAMS_URL = 'http://virtualsoccer.ru/teams_hidden.php'
+COUNTRIES_URL = 'https://virtualsoccer.ru/teams.php'
+COUNTRY_URL = 'https://virtualsoccer.ru/teams_cntr.php'
+CLUB_URL = 'https://virtualsoccer.ru/roster.php'
+HIDDEN_TEAMS_URL = 'https://virtualsoccer.ru/teams_hidden.php'
 
 
 class VsolParser:
@@ -16,7 +17,7 @@ class VsolParser:
 
     def get_countries(self):
         countries = []
-        page = html.parse(COUNTRIES_URL)
+        page = html.parse(urlopen(COUNTRIES_URL))
         table = page.getroot().find_class('tbl')[0]
         rows = table.getchildren()
         for count, row in enumerate(rows):
@@ -44,7 +45,7 @@ class VsolParser:
         return countries
 
     def get_club(self, vsol_id):
-        page = html.parse("%s?num=%d" % (CLUB_URL, vsol_id))
+        page = html.parse(urlopen("%s?num=%d" % (CLUB_URL, vsol_id)))
         table = page.getroot().xpath("//table[@class='wst nil']//table[@class='wst nil']")[0]
         div_name = table.xpath("//div[@class='tmhd']")[0]
         name = ''
@@ -81,7 +82,7 @@ class VsolParser:
     def get_clubs(self, country_id):
         print('start getting clubs for country = %d' % country_id)
         clubs = []
-        page = html.parse("%s?num=%d" % (COUNTRY_URL, country_id))
+        page = html.parse(urlopen("%s?num=%d" % (COUNTRY_URL, country_id)))
         table = None
         tables = page.getroot().find_class('tbl')
 
@@ -131,7 +132,7 @@ class VsolParser:
 
     def get_hidden_clubs(self):
         clubs = {}
-        page = html.parse("%s" % (HIDDEN_TEAMS_URL, ))
+        page = html.parse(urlopen("%s" % (HIDDEN_TEAMS_URL, )))
         select = page.getroot().find_class('form2 tct')[0]
         numbers = len(select.getchildren())
         countCl = 0
