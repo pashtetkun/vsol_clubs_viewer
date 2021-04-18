@@ -17,7 +17,8 @@ class DataExplorer():
                 entities.Continent(id=2, name='AFC - Азия'),
                 entities.Continent(id=3, name='CAF - Африка'),
                 entities.Continent(id=4, name='CONCACAF - Сев. Америка'),
-                entities.Continent(id=5, name='CONMEBOL - Южн. Америка')]
+                entities.Continent(id=5, name='CONMEBOL - Южн. Америка'),
+                entities.Continent(id=6, name='OFC - Океания')]
 
     def get_countries(self, continent_id):
         return db_manager.Country.select()\
