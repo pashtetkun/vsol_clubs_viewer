@@ -1,7 +1,7 @@
 cx-Freeze==6.6
 cx-Logging==3.0
 Cython==0.29.23
-importlib-metadata==3.10.1
+importlib-metadata==4.0.1
 lxml==4.6.3
 peewee==3.14.4
 urllib3==1.26.4
