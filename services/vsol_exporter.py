@@ -1,13 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+from config_file import ConfigFile
 from parsers import vsol_parser
 import csv
 import os
 
 
 class VsolExporter:
-    def __init__(self):
-        self.parser = vsol_parser.VsolParser()
+    def __init__(self, config):
+        self.config = config
+        self.parser = vsol_parser.VsolParser(config)
 
     def countries_to_csv(self):
         countries = self.parser.get_countries()
@@ -31,7 +33,10 @@ class VsolExporter:
         return all_clubs
 
 
-
 if __name__ == "__main__":
-    vsol_exporter = VsolExporter()
+    dir_services = os.path.dirname(__file__)
+    dir_root = os.path.dirname(dir_services)
+    config_path = os.path.join(dir_root, 'config.ini')
+    config = ConfigFile().get_config(config_path)
+    vsol_exporter = VsolExporter(config)
     vsol_exporter.countries_to_csv()

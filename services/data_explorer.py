@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+from config_file import ConfigFile
 from gui.entities import entities
 from db_manager import db_manager
 from services import vsol_exporter
@@ -8,17 +9,16 @@ import csv
 
 
 class DataExplorer():
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.dbm = db_manager.DBManager()
-        self.exporter = vsol_exporter.VsolExporter()
+        self.exporter = vsol_exporter.VsolExporter(self.config)
 
     def get_all_continents(self):
-        return [entities.Continent(id=1, name='UEFA - Европа'),
-                entities.Continent(id=2, name='AFC - Азия'),
-                entities.Continent(id=3, name='CAF - Африка'),
-                entities.Continent(id=4, name='CONCACAF - Сев. Америка'),
-                entities.Continent(id=5, name='CONMEBOL - Южн. Америка'),
-                entities.Continent(id=6, name='OFC - Океания')]
+        continents = []
+        for (each_key, each_val) in self.config.items('CONTINENTS'):
+            continents.append(entities.Continent(id=each_key, name=each_val))
+        return continents
 
     def get_countries(self, continent_id):
         return db_manager.Country.select()\
@@ -47,5 +47,12 @@ class DataExplorer():
 
 
 if __name__ == "__main__":
-    explorer = DataExplorer()
-    explorer.import_countries('countries.csv')
+    dir_services = os.path.dirname(__file__)
+    dir_root = os.path.dirname(dir_services)
+    config_path = os.path.join(dir_root, 'config.ini')
+    config = ConfigFile().get_config(config_path)
+    explorer = DataExplorer(config)
+    #explorer.import_countries('countries.csv')
+    #countries = explorer.get_all_countries()
+    #print('countries:' + countries)
+    print(explorer.get_all_continents())

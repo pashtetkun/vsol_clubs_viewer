@@ -3,21 +3,21 @@
 import lxml.html as html
 from urllib.request import urlopen
 import re
+import os
 
-
-COUNTRIES_URL = 'https://virtualsoccer.ru/teams.php'
-COUNTRY_URL = 'https://virtualsoccer.ru/teams_cntr.php'
-CLUB_URL = 'https://virtualsoccer.ru/roster.php'
-HIDDEN_TEAMS_URL = 'https://virtualsoccer.ru/teams_hidden.php'
+from config_file import ConfigFile
 
 
 class VsolParser:
-    def __init__(self):
-        pass
+    def __init__(self, config):
+        self.COUNTRIES_URL = config['VSOL']['countries_url']
+        self.COUNTRY_URL = config['VSOL']['country_url']
+        self.CLUB_URL = config['VSOL']['country_url']
+        self.HIDDEN_TEAMS_URL = config['VSOL']['hidden_teams_url']
 
     def get_countries(self):
         countries = []
-        page = html.parse(urlopen(COUNTRIES_URL))
+        page = html.parse(urlopen(self.COUNTRIES_URL))
         table = page.getroot().find_class('tbl')[0]
         rows = table.getchildren()
         for count, row in enumerate(rows):
@@ -45,7 +45,7 @@ class VsolParser:
         return countries
 
     def get_club(self, vsol_id):
-        page = html.parse(urlopen("%s?num=%d" % (CLUB_URL, vsol_id)))
+        page = html.parse(urlopen("%s?num=%d" % (self.CLUB_URL, vsol_id)))
         tables = page.getroot().xpath("//table[@class='wst nil']//table[@class='wst nil']")
         if not tables:
             club = {
@@ -90,7 +90,7 @@ class VsolParser:
     def get_clubs(self, country_id):
         print('start getting clubs for country = %d' % country_id)
         clubs = []
-        page = html.parse(urlopen("%s?num=%d" % (COUNTRY_URL, country_id)))
+        page = html.parse(urlopen("%s?num=%d" % (self.COUNTRY_URL, country_id)))
         table = None
         tables = page.getroot().find_class('tbl')
 
@@ -140,13 +140,13 @@ class VsolParser:
 
     def get_hidden_clubs(self):
         clubs = {}
-        page = html.parse(urlopen("%s" % (HIDDEN_TEAMS_URL, )))
+        page = html.parse(urlopen("%s" % (self.HIDDEN_TEAMS_URL, )))
         select = page.getroot().find_class('form2 tct')[0]
         numbers = len(select.getchildren())
         countCl = 0
         ids = []
         for num in range(1, numbers+1):
-            page = html.parse(urlopen("%s?page=%d&sort=1" % (HIDDEN_TEAMS_URL, num)))
+            page = html.parse(urlopen("%s?page=%d&sort=1" % (self.HIDDEN_TEAMS_URL, num)))
             table = page.getroot().find_class('tbl')[0]
             rows = table.getchildren()
             for count, row in enumerate(rows):
@@ -178,7 +178,11 @@ class VsolParser:
 
 
 if __name__ == "__main__":
-    vsol_parser = VsolParser()
+    dir_parsers = os.path.dirname(__file__)
+    dir_root = os.path.dirname(dir_parsers)
+    config_path = os.path.join(dir_root, 'config.ini')
+    config = ConfigFile().get_config(config_path)
+    vsol_parser = VsolParser(config)
     #print(vsol_parser.get_countries())
     #vsol_parser.get_clubs(4)
     #vsol_parser.get_clubs(6)
@@ -186,6 +190,6 @@ if __name__ == "__main__":
     #print(vsol_parser.get_club(12135))
     #vsol_parser.get_hidden_clubs()
     #vsol_parser.get_club(23495)
-    vsol_parser.get_club(23495)
-
+    #vsol_parser.get_club(23495)
+    print(vsol_parser.COUNTRIES_URL)
     print('Done')

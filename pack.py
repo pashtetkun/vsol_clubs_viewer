@@ -2,10 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import os
+import configparser
 from cx_Freeze import setup, Executable
 
-os.environ['TCL_LIBRARY'] = 'c:/python395/tcl/tcl8.6'
-os.environ['TK_LIBRARY'] = 'c:/python395/tcl/tk8.6'
+config = configparser.ConfigParser()
+config.read(os.path.join(os.getcwd(),'config.ini'), encoding='utf-8')
+PYTHON_DIR = config['python']['python_dir']
+os.environ['TCL_LIBRARY'] = os.path.join(PYTHON_DIR, 'tcl/tcl8.6')
+os.environ['TK_LIBRARY'] = os.path.join(PYTHON_DIR, 'tcl/tk8.6')
 
 # Dependencies are automatically detected, but it might need
 # fine tuning.
@@ -13,12 +17,13 @@ buildOptions = dict(
     packages = ["tkinter", "peewee"],
     excludes = [],
     includes = [],
-    include_files=['c:/python395/DLLs/tcl86t.dll',
-                   'c:/python395/DLLs/tk86t.dll',
+    include_files=[os.path.join(PYTHON_DIR, 'DLLs/tcl86t.dll'),
+                   os.path.join(PYTHON_DIR, 'DLLs/tk86t.dll'),
                    #'C:\\Windows\\System32\\ucrtbase.dll']
-                   'c:/python395/DLLs/sqlite3.dll',
+                   os.path.join(PYTHON_DIR, 'DLLs/sqlite3.dll'),
                    os.path.join(os.getcwd(), 'logo.ico'),
-                   os.path.join(os.getcwd(), 'logo.gif')]
+                   os.path.join(os.getcwd(), 'logo.gif'),
+                   os.path.join(os.getcwd(), 'config.ini')]
 )
 
 import sys

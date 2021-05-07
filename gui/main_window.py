@@ -6,6 +6,7 @@ import tkinter
 import tkinter.messagebox
 import os
 #from services import test_data_explorer as de
+from config_file import ConfigFile
 from services import data_explorer as de
 from services import vsol_exporter
 from parsers import vsol_parser
@@ -13,7 +14,7 @@ from gui import update_clubs_window
 
 
 class MainWindow:
-    def __init__(self, width, height, icon_path, logo_path):
+    def __init__(self, width, height, icon_path, logo_path, config):
         self.root = tkinter.Tk()
 
         #self.style = ttk.Style()
@@ -26,15 +27,17 @@ class MainWindow:
         self.root.geometry('%dx%d+%d+%d' % (width, height, (self.ws-width)//2, (self.hs-height)//2))
         self.root.resizable(width=False, height=False)
         self.root.iconbitmap(icon_path)
+        self.config = config
 
-        self.de = de.DataExplorer()
+        self.de = de.DataExplorer(self.config)
         self.continents = self.de.get_all_continents()
         self.clubs = []
         self.selected_continent_id = None
         self.selected_country_id = None
 
-        self.exporter = vsol_exporter.VsolExporter()
-        self.parser = vsol_parser.VsolParser()
+        self.exporter = vsol_exporter.VsolExporter(self.config)
+
+        self.parser = vsol_parser.VsolParser(self.config)
 
         self.menu = tkinter.Menu(self.root)
         self.root.config(menu=self.menu)
@@ -192,4 +195,8 @@ class MainWindow:
 
 
 if __name__ == "__main__":
-    MainWindow(1000, 500, '../logo.ico', '../logo.gif')
+    dir_gui = os.path.dirname(__file__)
+    dir_root = os.path.dirname(dir_gui)
+    config_path = os.path.join(dir_root, 'config.ini')
+    config = ConfigFile().get_config(config_path)
+    MainWindow(1000, 500, '../logo.ico', '../logo.gif', config)
