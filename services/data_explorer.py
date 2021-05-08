@@ -9,10 +9,12 @@ import csv
 
 
 class DataExplorer():
-    def __init__(self, config):
-        self.config = config
-        self.dbm = db_manager.DBManager()
-        self.exporter = vsol_exporter.VsolExporter(self.config)
+    def __init__(self, config_file, db_path):
+        self.config_file = config_file
+        self.config = config_file.config
+        db_path = db_path if db_path else 'vsol.db'
+        self.dbm = db_manager.DBManager(db_path)
+        self.exporter = vsol_exporter.VsolExporter(self.config_file)
 
     def get_all_continents(self):
         continents = []
@@ -50,9 +52,10 @@ if __name__ == "__main__":
     dir_services = os.path.dirname(__file__)
     dir_root = os.path.dirname(dir_services)
     config_path = os.path.join(dir_root, 'config.ini')
-    config = ConfigFile().get_config(config_path)
-    explorer = DataExplorer(config)
+    config_file = ConfigFile(config_path)
+    explorer = DataExplorer(config_file, 'c:/1/vsol.db')
     #explorer.import_countries('countries.csv')
     #countries = explorer.get_all_countries()
-    #print('countries:' + countries)
-    print(explorer.get_all_continents())
+    #for country in countries:
+        #print(country)
+    #print(explorer.get_all_continents())

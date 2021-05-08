@@ -4,8 +4,11 @@ import tkinter as tk
 from tkinter import ttk
 import queue
 import threading
+
+from config_file import ConfigFile
 from services import data_explorer
 from parsers import vsol_parser
+import os
 
 
 class ThreadedClientUpdateAll(threading.Thread):
@@ -51,21 +54,24 @@ class ThreadedClientUpdateAll(threading.Thread):
 class ThreadedClientUpdateHiddens(threading.Thread):
 
     def __init__(self, queue, data_explorer, vsol_parser, is_test=False):
-        threading.Thread.__init__(self)
         self.queue = queue
         self.de = data_explorer
         self.parser = vsol_parser
         self.is_test = is_test
+        threading.Thread.__init__(self, target=self.run)
 
     def run(self):
         if not self.is_test:
             self.queue.put({'done': False, 'message': "Получение списка стран начато"})
+            print('before getting countries')
             countries = self.de.get_all_countries()
+            print('after getting countries')
             self.queue.put({'done': False, 'message': "Получение списка стран завершено"})
-            #clubs = self.exporter.get_clubs(countries)
             all_clubs = []
             self.queue.put({'done': False, 'message': "Обрабатываются скрытые клубы"})
+            print('before getting hidden clubs')
             hidden_clubs_dict = self.parser.get_hidden_clubs()
+            print('after getting hidden clubs')
             count = 0
             for key, value in hidden_clubs_dict.items():
                 country = next((x for x in countries if x.name == key), None)
@@ -77,8 +83,9 @@ class ThreadedClientUpdateHiddens(threading.Thread):
                         all_clubs.append(club)
                         count += 1
                         self.queue.put({'done': False, 'message': "Обработано скрытых клубов %d" % count})
-
+            self.queue.put({'done': False, 'message': "Перед апдейтом в БД"})
             self.de.update_clubs(all_clubs)
+            self.queue.put({'done': False, 'message': "После апдейта в БД"})
             self.queue.put({'done': True, 'message': ""})
         else:
             self.queue.put({'done': False, 'message': "Ля-ля-ля"})
@@ -148,7 +155,7 @@ class UpdateClubsWindow(tk.Toplevel):
         self.progressbar.start()
         self.thread = ThreadedClientUpdateAll(self.queue, self.de, self.parser, self.is_test)
         self.thread.start()
-        self.master.after(1000, self.listen_queue)
+        self.master.after(100, self.listen_queue)
 
     def update_hiddens(self):
         self.var_message.set("")
@@ -156,7 +163,7 @@ class UpdateClubsWindow(tk.Toplevel):
         self.progressbar.start()
         self.thread = ThreadedClientUpdateHiddens(self.queue, self.de, self.parser, self.is_test)
         self.thread.start()
-        self.master.after(1000, self.listen_queue)
+        self.master.after(100, self.listen_queue)
 
     def update_selected_country(self, country_id):
         self.var_message.set("")
@@ -164,7 +171,7 @@ class UpdateClubsWindow(tk.Toplevel):
         self.progressbar.start()
         self.thread = ThreadedClientUpdateSelectedCountry(self.queue, self.de, self.parser, country_id, self.is_test)
         self.thread.start()
-        self.master.after(1000, self.listen_queue)
+        self.master.after(100, self.listen_queue)
 
     def close_window(self):
         if self.thread:
@@ -174,20 +181,25 @@ class UpdateClubsWindow(tk.Toplevel):
 
     def listen_queue(self):
         try:
-            resp = self.queue.get()
+            #print('listen queue')
+            resp = self.queue.get(0)
             self.process_message(resp)
-            self.queue.task_done()
-            self.queue.queue.clear()
-            self.master.after(1000, self.listen_queue)
+            #self.queue.task_done()
+            #self.queue.queue.clear()
+            self.master.after(100, self.listen_queue)
         except queue.Empty:
-            self.master.after(1000, self.listen_queue)
+            print('empty queue')
+            self.master.after(100, self.listen_queue)
 
     def process_message(self, resp):
+        print('resp_message=' + resp['message'])
         if resp['done']:
             self.progressbar.stop()
             self.progressbar.grid_remove()
             self.var_message.set(resp['message'])
             #self.label_message.grid()
+            self.queue.task_done()
+            self.queue.queue.clear()
             self.thread.join()
             self.destroy()
         else:
@@ -201,8 +213,13 @@ if __name__ == "__main__":
     hs = root.winfo_screenheight()
     ws = root.winfo_screenwidth()
     root.geometry('%dx%d+%d+%d' % (width, height, (ws - width) // 2, (hs - height) // 2))
-    explorer = data_explorer.DataExplorer()
-    parser = vsol_parser.VsolParser()
+    dir_gui = os.path.dirname(__file__)
+    dir_root = os.path.dirname(dir_gui)
+    config_path = os.path.join(dir_root, 'config.ini')
+    config_file = ConfigFile(config_path)
+    explorer = data_explorer.DataExplorer(config_file, 'c:/1/vsol.db')
+    parser = vsol_parser.VsolParser(config_file)
     update_clubs_window = UpdateClubsWindow(800, 160, explorer, parser, False)
-    update_clubs_window.update_all()
+    #update_clubs_window.update_all()
+    update_clubs_window.update_hiddens()
     root.mainloop()

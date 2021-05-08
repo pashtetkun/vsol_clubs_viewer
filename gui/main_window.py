@@ -14,7 +14,7 @@ from gui import update_clubs_window
 
 
 class MainWindow:
-    def __init__(self, width, height, icon_path, logo_path, config):
+    def __init__(self, width, height, icon_path, logo_path, config_file):
         self.root = tkinter.Tk()
 
         #self.style = ttk.Style()
@@ -27,17 +27,17 @@ class MainWindow:
         self.root.geometry('%dx%d+%d+%d' % (width, height, (self.ws-width)//2, (self.hs-height)//2))
         self.root.resizable(width=False, height=False)
         self.root.iconbitmap(icon_path)
-        self.config = config
+        self.config_file = config_file
 
-        self.de = de.DataExplorer(self.config)
+        self.de = de.DataExplorer(self.config_file, 'vsol.db')
         self.continents = self.de.get_all_continents()
         self.clubs = []
         self.selected_continent_id = None
         self.selected_country_id = None
 
-        self.exporter = vsol_exporter.VsolExporter(self.config)
+        self.exporter = vsol_exporter.VsolExporter(self.config_file)
 
-        self.parser = vsol_parser.VsolParser(self.config)
+        self.parser = vsol_parser.VsolParser(self.config_file)
 
         self.menu = tkinter.Menu(self.root)
         self.root.config(menu=self.menu)
@@ -51,8 +51,9 @@ class MainWindow:
         self.menu.add_command(label="Анализ")
 
         self.service_menu = tkinter.Menu(self.menu, tearoff=0)
-        self.service_menu.add_command(label="Экспорт стран: VSOL --> csv", command=self.countries_to_csv)
-        self.service_menu.add_command(label="Импорт стран: csv --> db", command=self.countries_to_db)
+        #self.service_menu.add_command(label="Экспорт стран: VSOL --> csv", command=self.countries_to_csv)
+        #self.service_menu.add_command(label="Импорт стран: csv --> db", command=self.countries_to_db)
+        self.service_menu.add_command(label="Получить страны", command=self.countries_to_db2)
 
         self.menu.add_cascade(label="Сервис", menu=self.service_menu)
 
@@ -166,6 +167,11 @@ class MainWindow:
         self.de.import_countries('countries.csv')
         tkinter.messagebox.showinfo("Сообщение", "Страны импортированы успешно!")
 
+    def countries_to_db2(self):
+        csv = self.exporter.countries_to_csv2()
+        self.de.import_countries('countries.csv')
+        tkinter.messagebox.showinfo("Сообщение", "Страны загружены в БД успешно!")
+
     def update_all(self):
         answer = tkinter.messagebox.askyesno(title="Вопрос", message="Обновить информацию о клубах?")
         if answer:
@@ -184,7 +190,6 @@ class MainWindow:
             upWindow = update_clubs_window.UpdateClubsWindow(800, 160, self.de, self.parser, False)
             upWindow.update_hiddens()
 
-
     def update_selected_country(self):
         if not self.selected_country_id:
             tkinter.messagebox.showinfo("Сообщение", "Страна не выбрана")
@@ -198,5 +203,5 @@ if __name__ == "__main__":
     dir_gui = os.path.dirname(__file__)
     dir_root = os.path.dirname(dir_gui)
     config_path = os.path.join(dir_root, 'config.ini')
-    config = ConfigFile().get_config(config_path)
+    config = ConfigFile(config_path)
     MainWindow(1000, 500, '../logo.ico', '../logo.gif', config)

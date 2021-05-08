@@ -4,7 +4,7 @@
 
 from peewee import *
 
-db = SqliteDatabase('vsol.db')
+db = SqliteDatabase(None)
 
 
 class Country(Model):
@@ -28,7 +28,8 @@ class Club(Model):
 
 
 class DBManager():
-    def __init__(self):
+    def __init__(self, path):
+        db.init(path)
         db.connect()
         Country.create_table()
         Club.create_table()
@@ -43,4 +44,3 @@ class DBManager():
         if not club:
             Club.create(name=name, vsol_id = vsol_id, country_vsol_id = country_vsol_id, stadium = stadium,
                                 hidden = hidden)
-

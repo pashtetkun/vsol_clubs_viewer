@@ -4,16 +4,17 @@ import lxml.html as html
 from urllib.request import urlopen
 import re
 import os
-
 from config_file import ConfigFile
 
 
 class VsolParser:
-    def __init__(self, config):
-        self.COUNTRIES_URL = config['VSOL']['countries_url']
-        self.COUNTRY_URL = config['VSOL']['country_url']
-        self.CLUB_URL = config['VSOL']['country_url']
-        self.HIDDEN_TEAMS_URL = config['VSOL']['hidden_teams_url']
+    def __init__(self, config_file):
+        self.config_file = config_file
+        self.config = config_file.config
+        self.COUNTRIES_URL = self.config['VSOL']['countries_url']
+        self.COUNTRY_URL = self.config['VSOL']['country_url']
+        self.CLUB_URL = self.config['VSOL']['club_url']
+        self.HIDDEN_TEAMS_URL = self.config['VSOL']['hidden_teams_url']
 
     def get_countries(self):
         countries = []
@@ -45,8 +46,10 @@ class VsolParser:
         return countries
 
     def get_club(self, vsol_id):
-        page = html.parse(urlopen("%s?num=%d" % (self.CLUB_URL, vsol_id)))
+        url = "%s?num=%d" % (self.CLUB_URL, vsol_id)
+        page = html.parse(urlopen(url))
         tables = page.getroot().xpath("//table[@class='wst nil']//table[@class='wst nil']")
+
         if not tables:
             club = {
                 'name': 'Не существует',
@@ -64,13 +67,17 @@ class VsolParser:
                 name = div_name.xpath("//span[@id='team_name']")[0].text_content()
             else:
                 name = div_name.text_content()
+
+        if (div_name.xpath("//span[@id='team_name']")):
+            name = div_name.xpath("//span[@id='team_name']")[0].text_content()
+        else:
+            name = div_name.text_content()
+
         name = name.replace('\n', '').replace('\t', '')
         parent = div_name.getparent()
         stadiumText = parent.getchildren()[-3].text_content()
-        # print(vsol_id, stadiumText)
         pattern = re.compile('"[^\"]+"')
         stadium = re.findall(pattern, stadiumText)[0].strip('"')
-
         '''has_logo = False
         if (table.xpath("//a[@class='mnu']")):
             a = table.xpath("//a[@class='mnu']")[0]
@@ -138,7 +145,18 @@ class VsolParser:
         print('end getting clubs for country = %d' % country_id)
         return clubs
 
+    def get_continent_id(self, country_id):
+        print('start getting continent for country = %d' % country_id)
+        page = html.parse(urlopen("%s?num=%d" % (self.COUNTRY_URL, country_id)))
+        table = page.getroot().find_class('nil')[0]
+        rows = table.getchildren()
+        row = rows[0]
+        col = row[1]
+        name = col.text_content()
+        return self.config_file.get_continent_id(name)
+
     def get_hidden_clubs(self):
+        print('start getting hidden clubs')
         clubs = {}
         page = html.parse(urlopen("%s" % (self.HIDDEN_TEAMS_URL, )))
         select = page.getroot().find_class('form2 tct')[0]
@@ -181,15 +199,18 @@ if __name__ == "__main__":
     dir_parsers = os.path.dirname(__file__)
     dir_root = os.path.dirname(dir_parsers)
     config_path = os.path.join(dir_root, 'config.ini')
-    config = ConfigFile().get_config(config_path)
-    vsol_parser = VsolParser(config)
+    config_file = ConfigFile(config_path)
+    vsol_parser = VsolParser(config_file)
     #print(vsol_parser.get_countries())
     #vsol_parser.get_clubs(4)
     #vsol_parser.get_clubs(6)
     #vsol_parser.get_clubs(214)
     #print(vsol_parser.get_club(12135))
     #vsol_parser.get_hidden_clubs()
+    print(vsol_parser.get_club(3045))
+    print(vsol_parser.get_club(3333))
+    print(vsol_parser.get_club(6188))
     #vsol_parser.get_club(23495)
-    #vsol_parser.get_club(23495)
-    print(vsol_parser.COUNTRIES_URL)
+    #print(vsol_parser.COUNTRIES_URL)
+    #print(vsol_parser.get_continent_id(206))
     print('Done')
