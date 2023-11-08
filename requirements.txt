@@ -1,8 +1,9 @@
-cx-Freeze==6.6
-cx-Logging==3.0
-Cython==0.29.23
-importlib-metadata==4.0.1
-lxml==4.6.3
-peewee==3.14.4
-urllib3==1.26.4
-zipp==3.4.1
+cx-Freeze==6.15.10
+cx-Logging==3.1.0
+Cython==3.0.5
+importlib-metadata==6.8.0
+lief==0.13.2
+lxml==4.9.3
+peewee==3.17.0
+urllib3==2.0.7
+zipp==3.17.0
