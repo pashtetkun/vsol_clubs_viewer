@@ -28,4 +28,4 @@ if __name__ == "__main__":
     configFile = ConfigFile()
     config = configFile.config
     #print(config.sections())
-    print(configFile.get_continent_id('AFC - Азия'))
+    print(configFile.get_continent_id('Азия'))
